@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Campus Marketplace</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <form id="signup-form">
+            <h3>Create a Student Account</h3>
+            <div class="form-control">
+                <label for="signup-name">Full Name</label>
+                <input type="text" id="signup-name" placeholder="Enter your full name..." required />
+            </div>
+            <div class="form-control">
+                <label for="signup-email">Email</label>
+                <input type="email" id="signup-email" placeholder="Enter your email..." required />
+            </div>
+            <div class="form-control">
+                <label for="signup-password">Password</label>
+                <input type="password" id="signup-password" placeholder="Enter your password..." required />
+            </div>
+            <div class="form-control">
+                <label for="college-select">Select Your College</label>
+                <select id="college-select" required>
+                    <option value="">Loading colleges...</option>
+                </select>
+            </div>
+            <button class="btn">Sign Up</button>
+        </form>
+
+        <hr>
+
+        <form id="login-form">
+          <h3>Login to Your Account</h3>
+        </form>
+        <button id="google-signin-btn" class="btn btn-google">
+          Sign In with Google
+      </button>
+    </div>
+
+    <script type="module" src="js/auth.js"></script>
+</body>
+</html>
