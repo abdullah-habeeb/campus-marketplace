@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Your Profile - Campus Marketplace</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <form id="complete-profile-form">
+            <h3>Welcome! Please Complete Your Profile</h3>
+            <p>To start using the marketplace, please provide a few more details.</p>
+            <div class="form-control">
+                <label for="profile-name">Full Name</label>
+                <input type="text" id="profile-name" required />
+            </div>
+            <div class="form-control">
+                <label for="profile-dob">Date of Birth</label>
+                <input type="date" id="profile-dob" required />
+            </div>
+            <div class="form-control">
+                <label for="profile-phone">Phone Number</label>
+                <input type="tel" id="profile-phone" placeholder="e.g., 9876543210" required />
+            </div>
+            <div class="form-control">
+                <label for="college-select">Select Your College</label>
+                <select id="college-select" required>
+                    <option value="">Loading colleges...</option>
+                </select>
+            </div>
+            <button class="btn">Save and Continue</button>
+        </form>
+    </div>
+
+    <script type="module" src="js/complete-profile.js"></script>
+</body>
+</html>
