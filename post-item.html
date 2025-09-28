@@ -8,6 +8,7 @@
 </head>
 <body>
     <div class="container">
+      <a href="index.html" class="back-link">← Back to Marketplace</a>
         <h3>Post a New Item for Sale</h3>
         <form id="post-item-form">
             <div class="form-control">
@@ -23,9 +24,11 @@
                 <input type="number" id="item-price" placeholder="e.g., 500" required />
             </div>
             <div class="form-control">
-                <label for="item-category">Category</label>
-                <input type="text" id="item-category" placeholder="e.g., Books" required />
-            </div>
+              <label for="item-category">Category</label>
+              <select id="item-category" required>
+                  <option value="">Select a category...</option>
+              </select>
+          </div>
             <div class="form-control">
                 <label for="item-image">Upload Photo</label>
                 <input type="file" id="item-image" accept="image/*" required />
