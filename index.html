@@ -10,12 +10,18 @@
     <div id="app-header" class="app-header">
         <a href="index.html" class="logo">Campus Marketplace</a>
         <nav>
-            <a href="post-item.html" id="post-item-link" class="btn btn-secondary">Post an Item</a>
+            <a href="post-item.html" class="btn btn-secondary">Post an Item</a>
             <button id="logout-btn" class="btn-logout">Logout</button>
         </nav>
     </div>
-
+    
     <div class="container">
+        <div class="filter-container">
+          <input type="text" id="search-bar" placeholder="Search for items...">
+          <select id="category-filter">
+            <option value="all">All Categories</option>
+          </select>
+        </div>
         <h2>Latest Listings</h2>
         <div id="listings-grid" class="listings-grid">
             </div>
