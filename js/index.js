@@ -1,101 +1,115 @@
 // js/index.js
-
 import { auth, db } from './firebase-config.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { collection, onSnapshot, query, orderBy, where } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 import { categories } from './categories.js';
 
+// --- Get Elements ---
 const listingsGrid = document.getElementById('listings-grid');
 const logoutBtn = document.getElementById('logout-btn');
 const searchBar = document.getElementById('search-bar');
 const categoryFilter = document.getElementById('category-filter');
+const openSidebarBtn = document.getElementById('open-sidebar-btn');
+const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+const sidebar = document.getElementById('sidebar');
+const allListingsLink = document.getElementById('all-listings-link');
+const myListingsLink = document.getElementById('my-listings-link');
+const listingsTitle = document.getElementById('listings-title');
 
-let listingsListener = null; // To hold our real-time listener
+let listingsListener = null;
+let currentUser = null;
 
-// Main gatekeeper to check for logged-in user
+// --- Gatekeeper ---
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        fetchAndDisplayListings(); // Initial fetch
+        currentUser = user;
+        fetchAndDisplayListings(); // Fetch all listings by default
         populateCategories();
     } else {
         window.location.href = 'login.html';
     }
 });
 
-// Add event listeners to our filter controls
+// --- Event Listeners ---
 searchBar.addEventListener('input', () => fetchAndDisplayListings());
 categoryFilter.addEventListener('change', () => fetchAndDisplayListings());
+openSidebarBtn.addEventListener('click', () => sidebar.style.width = "250px");
+closeSidebarBtn.addEventListener('click', () => sidebar.style.width = "0");
+allListingsLink.addEventListener('click', () => {
+    listingsTitle.textContent = "Latest Listings";
+    fetchAndDisplayListings(); // Fetch all
+    sidebar.style.width = "0";
+});
+myListingsLink.addEventListener('click', () => {
+    listingsTitle.textContent = "Your Listings";
+    fetchAndDisplayListings(true); // Fetch only my listings
+    sidebar.style.width = "0";
+});
 
-// This is the main function that builds the query and gets the data
-function fetchAndDisplayListings() {
-    // If a real-time listener is already active, we must stop it before creating a new one
-    if (listingsListener) {
-        listingsListener(); // This detaches the old listener
-    }
+// --- Main Fetch Function ---
+function fetchAndDisplayListings(myListingsOnly = false) {
+    if (listingsListener) { listingsListener(); }
 
     const searchTerm = searchBar.value.toLowerCase();
     const selectedCategory = categoryFilter.value;
 
-    // Start with a base query for all listings, sorted by newest first
     let q = query(collection(db, 'listings'), orderBy("postedAt", "desc"));
+    if (selectedCategory !== 'all') { q = query(q, where("category", "==", selectedCategory)); }
+    if (myListingsOnly && currentUser) { q = query(q, where("sellerId", "==", currentUser.uid)); }
 
-    // --- THIS IS THE FIX ---
-    // If the user selected a specific category (not "all"),
-    // we add another condition to our query.
-    if (selectedCategory !== 'all') {
-        q = query(q, where("category", "==", selectedCategory));
-    }
-
-    // Now, attach our real-time listener to the final query (q)
     listingsListener = onSnapshot(q, (snapshot) => {
         let listings = [];
         snapshot.docs.forEach((doc) => {
             const listing = { ...doc.data(), id: doc.id };
-            // Since Firestore can't do "text contains" search, we filter by text on the client-side
             if (listing.title.toLowerCase().includes(searchTerm)) {
                 listings.push(listing);
             }
         });
         displayListings(listings);
+    }, (error) => {
+        console.error("Firestore query failed. You may need to create an index:", error);
     });
 }
 
-// This function just handles drawing the cards on the screen
+// --- Display & Populate Functions (Mostly Unchanged) ---
+// in js/index.js
+
 function displayListings(listings) {
     listingsGrid.innerHTML = '';
     if (listings.length === 0) {
-        listingsGrid.innerHTML = '<p>No items found matching your criteria.</p>';
+        listingsGrid.innerHTML = '<p>No items found.</p>';
         return;
     }
     listings.forEach((listing) => {
-        const listingCard = document.createElement('div');
-        listingCard.classList.add('listing-card');
-        listingCard.innerHTML = `
-            <img src="${listing.imageUrl}" alt="${listing.title}">
-            <div class="card-content">
-                <h4>${listing.title}</h4>
-                <p class="price">₹${listing.price}</p>
-                <small>Sold by: ${listing.sellerName}</small>
+        const link = document.createElement('a');
+        link.href = `item-details.html?id=${listing.id}`;
+        link.classList.add('listing-card-link');
+
+        // --- THIS IS THE CORRECTED PART ---
+        // We are adding the full HTML for the card here
+        link.innerHTML = `
+            <div class="listing-card">
+                <img src="${listing.imageUrls ? listing.imageUrls[0] : listing.imageUrl}" alt="${listing.title}">
+                <div class="card-content">
+                    <h4>${listing.title}</h4>
+                    <p class="price">₹${listing.price}</p>
+                    <small>Sold by: ${listing.sellerName}</small>
+                </div>
             </div>
         `;
-        listingsGrid.appendChild(listingCard);
+        // --- END OF CORRECTION ---
+
+        listingsGrid.appendChild(link);
     });
 }
 
-// This function populates the category dropdown from our shared list
 function populateCategories() {
-    // Check if categories are already populated to avoid duplication
     if (categoryFilter.options.length > 1) return;
-
     categories.forEach(category => {
         const option = document.createElement('option');
-        option.value = category;
-        option.textContent = category;
+        option.value = category; option.textContent = category;
         categoryFilter.appendChild(option);
     });
 }
 
-// Logout logic
-logoutBtn.addEventListener('click', () => {
-    signOut(auth);
-});
+logoutBtn.addEventListener('click', () => signOut(auth));
