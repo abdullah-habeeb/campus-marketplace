@@ -308,3 +308,122 @@ nav {
   text-decoration: none;
   font-weight: 600;
 }
+
+/* --- STYLES FOR ITEM DETAILS PAGE --- */
+.item-details-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+}
+
+.item-image-container img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.item-info-container h1 {
+  margin-top: 0;
+}
+
+.item-info-container .price {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.seller-info p {
+  margin: 5px 0;
+}
+
+/* in style.css */
+a.listing-card-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* in style.css */
+.back-link {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* --- STYLES FOR IMAGE GALLERY --- */
+.item-image-container {
+  position: relative;
+}
+.gallery-controls {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  transform: translateY(-50%);
+}
+.gallery-controls button {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 10px;
+  line-height: 1;
+}
+.gallery-controls button:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* --- STYLES FOR SIDEBAR --- */
+.sidebar {
+  height: 100%;
+  width: 0; /* Initially hidden */
+  position: fixed;
+  z-index: 200;
+  top: 0;
+  left: 0;
+  background-color: #fff;
+  overflow-x: hidden;
+  transition: 0.3s;
+  padding-top: 60px;
+  box-shadow: 3px 0 6px rgba(0,0,0,0.1);
+}
+
+.sidebar a {
+  padding: 10px 15px;
+  text-decoration: none;
+  font-size: 18px;
+  color: #333;
+  display: block;
+  transition: 0.2s;
+}
+
+.sidebar a:hover {
+  background-color: #f1f1f1;
+}
+
+.sidebar .close-btn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+
+.sidebar-toggle-btn {
+  font-size: 20px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding-right: 15px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}

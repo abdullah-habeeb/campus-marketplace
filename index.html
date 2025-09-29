@@ -7,24 +7,32 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="sidebar" class="sidebar">
+        <a href="javascript:void(0)" class="close-btn" id="close-sidebar-btn">&times;</a>
+        <a href="#" id="all-listings-link">All Listings</a>
+        <a href="#" id="my-listings-link">Your Listings</a>
+    </div>
+
     <div id="app-header" class="app-header">
-        <a href="index.html" class="logo">Campus Marketplace</a>
+        <div class="header-left">
+            <button id="open-sidebar-btn" class="sidebar-toggle-btn">&#9776;</button>
+            <a href="index.html" class="logo">Campus Marketplace</a>
+        </div>
         <nav>
             <a href="post-item.html" class="btn btn-secondary">Post an Item</a>
             <button id="logout-btn" class="btn-logout">Logout</button>
         </nav>
     </div>
-    
+
     <div class="container">
         <div class="filter-container">
-          <input type="text" id="search-bar" placeholder="Search for items...">
-          <select id="category-filter">
-            <option value="all">All Categories</option>
-          </select>
+            <input type="text" id="search-bar" placeholder="Search for items...">
+            <select id="category-filter">
+                <option value="all">All Categories</option>
+            </select>
         </div>
-        <h2>Latest Listings</h2>
-        <div id="listings-grid" class="listings-grid">
-            </div>
+        <h2 id="listings-title">Latest Listings</h2>
+        <div id="listings-grid" class="listings-grid"></div>
     </div>
 
     <script type="module" src="js/index.js"></script>

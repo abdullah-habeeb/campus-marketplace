@@ -29,10 +29,10 @@
                   <option value="">Select a category...</option>
               </select>
           </div>
-            <div class="form-control">
-                <label for="item-image">Upload Photo</label>
-                <input type="file" id="item-image" accept="image/*" required />
-            </div>
+          <div class="form-control">
+            <label for="item-image">Upload Photos (up to 5)</label>
+            <input type="file" id="item-image" accept="image/*" required multiple />
+        </div>
             <button class="btn" type="submit">Post Item</button>
             <div id="upload-status"></div>
         </form>
