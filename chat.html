@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Campus Marketplace</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app-header" class="app-header">
+         <a href="index.html" class="logo">← Back to Marketplace</a>
+         <nav><button id="logout-btn" class="btn-logout">Logout</button></nav>
+    </div>
+    <div class="container chat-container">
+        <div id="messages-container" class="messages-container"></div>
+        <form id="message-form" class="message-form">
+            <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off" required>
+            <button type="submit" class="btn">Send</button>
+        </form>
+    </div>
+    <script type="module" src="js/chat.js"></script>
+</body>
+</html>

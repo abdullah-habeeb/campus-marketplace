@@ -74,6 +74,8 @@ function fetchAndDisplayListings(myListingsOnly = false) {
 // --- Display & Populate Functions (Mostly Unchanged) ---
 // in js/index.js
 
+// in js/index.js
+
 function displayListings(listings) {
     listingsGrid.innerHTML = '';
     if (listings.length === 0) {
@@ -84,9 +86,14 @@ function displayListings(listings) {
         const link = document.createElement('a');
         link.href = `item-details.html?id=${listing.id}`;
         link.classList.add('listing-card-link');
+        
+        // --- THIS IS THE FIX ---
+        // Check if the current user is the seller
+        if (currentUser && currentUser.uid === listing.sellerId) {
+            link.classList.add('my-listing'); // Add our special class
+        }
+        // --- END OF FIX ---
 
-        // --- THIS IS THE CORRECTED PART ---
-        // We are adding the full HTML for the card here
         link.innerHTML = `
             <div class="listing-card">
                 <img src="${listing.imageUrls ? listing.imageUrls[0] : listing.imageUrl}" alt="${listing.title}">
@@ -97,8 +104,6 @@ function displayListings(listings) {
                 </div>
             </div>
         `;
-        // --- END OF CORRECTION ---
-
         listingsGrid.appendChild(link);
     });
 }

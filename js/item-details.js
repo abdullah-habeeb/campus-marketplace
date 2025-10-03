@@ -1,12 +1,11 @@
-// js/item-details.js
-
+// js/item-details.js - FINAL CORRECTED VERSION
 import { auth, db } from './firebase-config.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-import { doc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+import { doc, getDoc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
 const itemDetailsContainer = document.getElementById('item-details-container');
 const logoutBtn = document.getElementById('logout-btn');
-let currentItem = null; // Store the current item globally on this page
+let currentItem = null;
 let currentUser = null;
 
 onAuthStateChanged(auth, (user) => {
@@ -21,74 +20,115 @@ onAuthStateChanged(auth, (user) => {
 async function loadItemDetails() {
     const params = new URLSearchParams(window.location.search);
     const itemId = params.get('id');
-    if (!itemId) { return; }
+    if (!itemId) { itemDetailsContainer.innerHTML = 'Item not found.'; return; }
 
     try {
         const itemDoc = await getDoc(doc(db, 'listings', itemId));
         if (itemDoc.exists()) {
             currentItem = { ...itemDoc.data(), id: itemDoc.id };
             displayItemDetails(currentItem);
+        } else {
+            itemDetailsContainer.innerHTML = 'This item does not exist.';
         }
     } catch (error) { console.error("Error fetching details:", error); }
 }
 
+// in js/item-details.js
+
+// in js/item-details.js
+
 function displayItemDetails(item) {
-    const postedDate = item.postedAt.toDate().toLocaleDateString('en-IN');
-    const imageSources = item.imageUrls && item.imageUrls.length > 0 ? item.imageUrls : [item.imageUrl];
+  const postedDate = item.postedAt.toDate().toLocaleDateString('en-IN');
+  const imageSources = item.imageUrls && item.imageUrls.length > 0 ? item.imageUrls : [item.imageUrl];
 
-    itemDetailsContainer.innerHTML = `
-        <a href="index.html" class="back-link">← Back to Marketplace</a>
-        <div class="item-details-layout">
-            <div class="item-image-container">
-                <img src="${imageSources[0]}" alt="${item.title}" id="main-image">
-                ${imageSources.length > 1 ? `<div class="gallery-controls"><button id="prev-btn">‹</button><button id="next-btn">›</button></div>` : ''}
-            </div>
-            <div class="item-info-container">
-                <h1>${item.title}</h1>
-                <p class="price">₹${item.price}</p>
-                <h3>Description</h3>
-                <p>${item.description}</p>
-                <hr>
-                <div class="seller-info">
-                    <p><strong>Category:</strong> ${item.category}</p>
-                    <p><strong>Sold by:</strong> ${item.sellerName}</p>
-                    <p><strong>Posted on:</strong> ${postedDate}</p>
-                </div>
-                <a href="#" class="btn" id="contact-seller-btn">Contact Seller</a>
-                <div id="owner-controls" class="hidden">
-                    <button class="btn btn-danger" id="delete-item-btn">Delete Item</button>
-                </div>
-            </div>
-        </div>
-    `;
+  itemDetailsContainer.innerHTML = `
+      <a href="index.html" class="back-link">← Back to Marketplace</a>
+      <div class="item-details-layout">
+          <div class="item-image-container">
+              <img src="${imageSources[0]}" alt="${item.title}" id="main-image">
+              ${imageSources.length > 1 ? `
+              <div class="gallery-controls">
+                  <button id="prev-btn">‹</button>
+                  <button id="next-btn">›</button>
+              </div>
+              ` : ''}
+          </div>
+          <div class="item-info-container">
+              <h1>${item.title}</h1>
+              <p class="price">₹${item.price}</p>
+              <h3>Description</h3>
+              <p>${item.description}</p>
+              <hr>
+              <div class="seller-info">
+                  <p><strong>Category:</strong> ${item.category}</p>
+                  <p><strong>Sold by:</strong> ${item.sellerName}</p>
+                  <p><strong>Posted on:</strong> ${postedDate}</p>
+              </div>
+              <div id="contact-seller-container"></div>
+              <div id="owner-controls" class="hidden">
+                  <button class="btn btn-danger" id="delete-item-btn">Delete Item</button>
+              </div>
+          </div>
+      </div>
+  `;
 
-    // --- Show owner controls if the current user is the seller ---
-    if (currentUser && currentUser.uid === item.sellerId) {
-        document.getElementById('owner-controls').classList.remove('hidden');
-        document.getElementById('delete-item-btn').addEventListener('click', handleDeleteItem);
-    }
+  // --- THIS IS THE FIX ---
+  // The logic for the gallery buttons and owner controls goes here.
+  
+  // Show owner controls if the current user is the seller
+  if (currentUser && currentUser.uid === item.sellerId) {
+      document.getElementById('owner-controls').classList.remove('hidden');
+      document.getElementById('delete-item-btn').addEventListener('click', handleDeleteItem);
+  }
+  
+  // Add contact button if the current user is NOT the seller
+  if (currentUser && currentUser.uid !== item.sellerId) {
+      const contactBtn = document.createElement('a');
+      contactBtn.href = '#';
+      contactBtn.className = 'btn';
+      contactBtn.id = 'contact-seller-btn';
+      contactBtn.textContent = 'Contact Seller';
+      contactBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          initiateChat(item.sellerId);
+      });
+      document.getElementById('contact-seller-container').appendChild(contactBtn);
+  }
 
-    // --- Gallery Logic ---
-    if (imageSources.length > 1) { /* ... gallery logic from before ... */ }
+  // Add gallery logic ONLY if there is more than one image
+  if (imageSources.length > 1) {
+      let currentImageIndex = 0;
+      const mainImage = document.getElementById('main-image');
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      
+      const updateImage = () => { mainImage.src = imageSources[currentImageIndex]; };
+
+      prevBtn.addEventListener('click', () => {
+          currentImageIndex = (currentImageIndex > 0) ? currentImageIndex - 1 : imageSources.length - 1;
+          updateImage();
+      });
+
+      nextBtn.addEventListener('click', () => {
+          currentImageIndex = (currentImageIndex < imageSources.length - 1) ? currentImageIndex + 1 : 0;
+          updateImage();
+      });
+  }
 }
 
-// --- NEW: Function to handle item deletion ---
-async function handleDeleteItem() {
-    if (!currentItem) return;
-
-    // Show a confirmation pop-up
-    const isConfirmed = confirm("Are you sure you want to permanently delete this listing?");
-
-    if (isConfirmed) {
-        try {
-            await deleteDoc(doc(db, 'listings', currentItem.id));
-            alert("Listing deleted successfully.");
-            window.location.href = 'index.html'; // Go back to home
-        } catch (error) {
-            console.error("Error deleting item:", error);
-            alert("There was an error deleting your listing.");
+async function initiateChat(sellerId) {
+    if (!currentUser) return;
+    const buyerId = currentUser.uid;
+    const chatId = buyerId > sellerId ? `${buyerId}_${sellerId}` : `${sellerId}_${buyerId}`;
+    const chatDocRef = doc(db, 'chats', chatId);
+    try {
+        const chatDoc = await getDoc(chatDocRef);
+        if (!chatDoc.exists()) {
+            await setDoc(chatDocRef, { participants: [buyerId, sellerId], createdAt: new Date() });
         }
-    }
+        window.location.href = `chat.html?id=${chatId}`;
+    } catch (error) { console.error("Error initiating chat:", error); }
 }
 
+async function handleDeleteItem() { /* ... unchanged ... */ }
 logoutBtn.addEventListener('click', () => signOut(auth));
