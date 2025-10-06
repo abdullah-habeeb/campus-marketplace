@@ -1,0 +1,2 @@
+# Ignore the file containing secret keys
+js/firebase-config.js
