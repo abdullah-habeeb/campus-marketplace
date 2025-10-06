@@ -1,5 +1,4 @@
 // js/auth.js - FINAL CORRECTED VERSION
-
 import { auth, db } from './firebase-config.js';
 import { 
     createUserWithEmailAndPassword, 
@@ -10,30 +9,24 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { doc, setDoc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
-// --- Get HTML Elements ---
 const signupForm = document.getElementById('signup-form');
 const loginForm = document.getElementById('login-form');
 const googleSigninBtn = document.getElementById('google-signin-btn');
 const collegeSelect = document.getElementById('college-select');
 const errorMessage = document.getElementById('error-message');
 
-// --- THE GATEKEEPER: Checks login status and profile completeness ---
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     const userDocRef = doc(db, "users", user.uid);
     const userDoc = await getDoc(userDocRef);
     if (userDoc.exists() && userDoc.data().collegeId) {
-        // If profile is complete, go to the main app
         window.location.href = 'index.html';
     } else {
-        // If profile is incomplete, go to the profile completion page
         window.location.href = 'complete-profile.html';
     }
   }
-  // If no user, do nothing and stay on the login page.
 });
 
-// --- Function to populate the college dropdown menu ---
 async function populateColleges() {
     try {
         const collegesSnapshot = await getDocs(collection(db, "colleges"));
@@ -51,7 +44,6 @@ async function populateColleges() {
     }
 }
 
-// --- Event Listener for Email/Password SIGN UP ---
 signupForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = document.getElementById('signup-name').value;
@@ -62,43 +54,48 @@ signupForm.addEventListener('submit', async (e) => {
         errorMessage.textContent = "Please select your college.";
         return; 
     }
-
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         await setDoc(doc(db, "users", user.uid), {
             uid: user.uid, name: name, email: user.email, collegeId: collegeId, createdAt: new Date()
         });
-        // onAuthStateChanged will handle the redirect automatically
     } catch (error) { 
         errorMessage.textContent = error.message; 
     }
 });
 
-// --- Event Listener for Email/Password LOGIN ---
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
-    
     try {
         await signInWithEmailAndPassword(auth, email, password);
-        // onAuthStateChanged will handle the redirect automatically
     } catch (error) { 
         errorMessage.textContent = error.message; 
     }
 });
 
-// --- Event Listener for GOOGLE SIGN-IN ---
 googleSigninBtn.addEventListener('click', async () => {
     const provider = new GoogleAuthProvider();
     try {
-        await signInWithPopup(auth, provider);
-        // onAuthStateChanged will handle the redirect automatically
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (!userDoc.exists()) {
+            // This is a new user, create their profile document
+            await setDoc(userDocRef, {
+                uid: user.uid,
+                name: user.displayName,
+                email: user.email,
+                collegeId: null, // User will be redirected to complete-profile.html to set this
+                createdAt: new Date()
+            });
+        }
     } catch (error) { 
         errorMessage.textContent = error.message; 
     }
 });
 
-// --- Run this function when the page loads ---
 populateColleges();
