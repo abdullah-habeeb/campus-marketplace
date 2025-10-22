@@ -1,13 +1,13 @@
-// js/post-item.js - FINAL CORRECTED VERSION
+// js/post-item.js
 import { auth, db, storage } from './firebase-config.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { doc, getDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
-import { categories } from './categories.js'; // Import the shared categories
+import { categories } from './categories.js';
 
 const postItemForm = document.getElementById('post-item-form');
 const uploadStatus = document.getElementById('upload-status');
-const categorySelect = document.getElementById('item-category'); // Get the select element
+const categorySelect = document.getElementById('item-category');
 let currentUser = null;
 let userProfile = null;
 
@@ -26,6 +26,10 @@ onAuthStateChanged(auth, async (user) => {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
             userProfile = userDoc.data();
+        } else {
+            // Handle case where user profile might not exist yet
+            console.log("User profile not found, might need to complete it.");
+            // Optionally redirect to complete-profile.html if needed
         }
     } else {
         window.location.href = 'login.html';
@@ -34,14 +38,14 @@ onAuthStateChanged(auth, async (user) => {
 
 postItemForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!currentUser || !userProfile) { alert("You must be logged in to post."); return; }
-
+    if (!currentUser || !userProfile) { alert("User profile not loaded. Please wait or log in again."); return; }
+    
     const title = document.getElementById('item-title').value;
     const description = document.getElementById('item-description').value;
     const price = document.getElementById('item-price').value;
     const category = categorySelect.value;
     const imageFiles = document.getElementById('item-image').files;
-
+    
     if (!category) { alert("Please select a category."); return; }
     if (imageFiles.length === 0 || imageFiles.length > 5) { alert("Please select 1 to 5 images."); return; }
 
@@ -68,4 +72,4 @@ postItemForm.addEventListener('submit', async (e) => {
     }
 });
 
-populateCategories(); // Call the function to fill the dropdown
+populateCategories();

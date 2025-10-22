@@ -1,5 +1,5 @@
-// js/auth.js - FINAL CORRECTED VERSION
-import { auth, db } from './firebase-config.js';
+// js/auth.js
+import { auth, db } from './firebase-config.js'; // This is the crucial import
 import { 
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword,
@@ -40,7 +40,6 @@ async function populateColleges() {
         });
     } catch (error) { 
         console.error("Error fetching colleges:", error);
-        errorMessage.textContent = "Could not load college list.";
     }
 }
 
@@ -76,7 +75,8 @@ loginForm.addEventListener('submit', async (e) => {
     }
 });
 
-googleSigninBtn.addEventListener('click', async () => {
+googleSigninBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
     const provider = new GoogleAuthProvider();
     try {
         const result = await signInWithPopup(auth, provider);
@@ -84,13 +84,9 @@ googleSigninBtn.addEventListener('click', async () => {
         const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
         if (!userDoc.exists()) {
-            // This is a new user, create their profile document
             await setDoc(userDocRef, {
-                uid: user.uid,
-                name: user.displayName,
-                email: user.email,
-                collegeId: null, // User will be redirected to complete-profile.html to set this
-                createdAt: new Date()
+                uid: user.uid, name: user.displayName, email: user.email,
+                collegeId: null, createdAt: new Date()
             });
         }
     } catch (error) { 
