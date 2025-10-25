@@ -50,26 +50,34 @@ postItemForm.addEventListener('submit', async (e) => {
     if (imageFiles.length === 0 || imageFiles.length > 5) { alert("Please select 1 to 5 images."); return; }
 
     uploadStatus.textContent = `Uploading ${imageFiles.length} image(s)...`;
+    // ... inside the submit listener ...
     try {
-        const uploadPromises = Array.from(imageFiles).map(file => {
-            const storageRef = ref(storage, `listings/${currentUser.uid}/${Date.now()}_${file.name}`);
-            return uploadBytes(storageRef, file).then(uploadResult => getDownloadURL(uploadResult.ref));
-        });
-        const imageUrls = await Promise.all(uploadPromises);
-        
-        const newListing = {
-            title, description, price: +price, category, imageUrls,
-            sellerId: currentUser.uid, sellerName: userProfile.name,
-            collegeId: userProfile.collegeId, postedAt: new Date(), isSold: false
-        };
+        console.log("Attempting to get storageRef..."); // DIAGNOSTIC
+        const storageRef = ref(storage, `listings/${currentUser.uid}/${Date.now()}_${imageFiles[0].name}`); // Assuming single file for simplicity now
+        console.log("storageRef obtained:", storageRef); // DIAGNOSTIC
 
-        await addDoc(collection(db, 'listings'), newListing);
-        uploadStatus.textContent = "Listing posted successfully! Redirecting...";
-        setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+        console.log("Attempting to call uploadBytes..."); // DIAGNOSTIC
+        const uploadResult = await uploadBytes(storageRef, imageFiles[0]); // Try with just the first file
+        console.log("uploadBytes SUCCEEDED:", uploadResult); // DIAGNOSTIC
+
+        console.log("Attempting to get Download URL..."); // DIAGNOSTIC
+        const imageUrl = await getDownloadURL(uploadResult.ref);
+        console.log("Download URL obtained:", imageUrl); // DIAGNOSTIC
+
+        // ... rest of the code to save to Firestore ...
+
     } catch (error) {
-        console.error("Error posting item:", error);
-        uploadStatus.textContent = `Error: ${error.message}`;
+        console.error("--------------------------------------------------");
+        console.error("CRITICAL ERROR DURING UPLOAD OR FIRESTORE SAVE:");
+        console.error("Error Name:", error.name);
+        console.error("Error Code:", error.code); // Firebase specific error code
+        console.error("Error Message:", error.message);
+        console.error("Full Error Object:", error); // Log the entire error object
+        console.error("--------------------------------------------------");
+        uploadStatus.textContent = `Upload Failed: ${error.code || error.message}. Check console.`;
+        alert("Upload failed. Please check the developer console for detailed errors.");
     }
+// ... rest of the listener ...
 });
 
 populateCategories();

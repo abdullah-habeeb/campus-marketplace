@@ -1,25 +1,6 @@
 // service-worker.js
 const CACHE_NAME = 'campus-marketplace-v2'; // Updated version name
-const urlsToCache = [
-  '/',
-  'index.html',
-  'login.html',
-  'post-item.html',
-  'item-details.html',
-  'chat.html',
-  'complete-profile.html',
-  'style.css',
-  'js/firebase-config.js',
-  'js/auth.js',
-  'js/index.js',
-  'js/post-item.js',
-  'js/item-details.js',
-  'js/chat.js',
-  'js/complete-profile.js',
-  'js/categories.js',
-  'js/app.js',
-  '/assets/icon-512x512.png'
-];
+
 
 self.addEventListener('install', event => {
   event.waitUntil(
