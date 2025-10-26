@@ -14,7 +14,7 @@ onAuthStateChanged(auth, (user) => {
         if (user.displayName && nameInput) { nameInput.value = user.displayName; }
         populateColleges();
     } else {
-        window.location.href = 'login.html';
+        //window.location.href = 'login.html';
     }
 });
 

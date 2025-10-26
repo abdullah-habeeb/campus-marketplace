@@ -26,7 +26,7 @@ onAuthStateChanged(auth, (user) => {
         fetchAndDisplayListings(); // Fetch all listings by default
         populateCategories();
     } else {
-        window.location.href = 'login.html';
+       // window.location.href = 'login.html';
     }
 });
 

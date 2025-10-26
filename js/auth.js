@@ -22,7 +22,7 @@ onAuthStateChanged(auth, async (user) => {
     if (userDoc.exists() && userDoc.data().collegeId) {
         window.location.href = 'index.html';
     } else {
-        window.location.href = 'complete-profile.html';
+        //window.location.href = 'complete-profile.html';
     }
   }
 });
