@@ -15,21 +15,50 @@ const googleSigninBtn = document.getElementById('google-signin-btn');
 const collegeSelect = document.getElementById('college-select');
 const errorMessage = document.getElementById('error-message');
 
+// js/auth.js
+// js/auth.js
 onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    const userDocRef = doc(db, "users", user.uid);
-    const userDoc = await getDoc(userDocRef);
-    if (userDoc.exists() && userDoc.data().collegeId) {
-        window.location.href = 'index.html';
+    if (user) {
+      console.log("Auth State: User logged in. Checking profile...");
+      try {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+  
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          console.log("Profile data found:", userData);
+          // Check specifically if collegeId exists AND is not empty/null
+          if (userData.collegeId) { 
+              console.log("Profile complete (collegeId found). Redirecting to index...");
+              window.location.href = 'index.html';
+          } else {
+              console.log("Profile incomplete (collegeId missing or empty). Redirecting to complete-profile...");
+              window.location.href = 'complete-profile.html';
+          }
+        } else {
+          console.log("Profile document does not exist. Redirecting to complete-profile...");
+          window.location.href = 'complete-profile.html';
+        }
+      } catch (error) {
+          console.error("Error checking user profile:", error);
+          // Decide where to send user if profile check fails, maybe login?
+          window.location.href = 'login.html'; 
+      }
     } else {
-        //window.location.href = 'complete-profile.html';
+        console.log("Auth State: No user logged in.");
+        // Stay on login page or handle appropriately
     }
-  }
-});
+  });
 
-async function populateColleges() {
+  async function populateColleges() {
+    console.log("Attempting to populate colleges..."); // Add this log
     try {
         const collegesSnapshot = await getDocs(collection(db, "colleges"));
+        if (collegesSnapshot.empty) { // Check if the collection is empty
+            console.warn("No colleges found in the database!");
+            collegeSelect.innerHTML = '<option value="">No colleges available</option>';
+            return;
+        }
         collegeSelect.innerHTML = '<option value="">Select your college</option>';
         collegesSnapshot.forEach((doc) => {
             const college = doc.data();
@@ -38,8 +67,10 @@ async function populateColleges() {
             option.textContent = `${college.name}, ${college.city}`;
             collegeSelect.appendChild(option);
         });
-    } catch (error) { 
-        console.error("Error fetching colleges:", error);
+        console.log("Colleges populated successfully."); // Add this log
+    } catch (error) {
+        console.error("Error fetching colleges:", error); // Check for errors here
+        errorMessage.textContent = "Could not load college list.";
     }
 }
 
